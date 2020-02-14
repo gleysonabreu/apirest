@@ -1,0 +1,17 @@
+{
+  "name": "gleysonabreu/apirest",
+  "authors":[
+    {
+      "name": "Gleyson Abreu",
+      "email": "gleyson.abreu@yahoo.com"
+    }
+  ],
+  "require": {
+    "slim/slim": "2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "GLEYSON\\": "src\\"
+    }
+  }
+}
