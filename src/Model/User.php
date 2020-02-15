@@ -10,6 +10,11 @@ class User extends Model{
     "id", "name", "lastname", "company"
   ];
 
+  // Permissions: 1 - ADD, 2 - DELETE, 3 - UPDATE, 4 - READ
+  protected $permissions = [
+    1, 2, 3, 4
+  ];
+
   private $date_today;
   private $conn;
   private $token;
@@ -19,12 +24,18 @@ class User extends Model{
     $this->conn = new SQL();
   }
 
-  private function verifyToken($token):bool{
+  private function verifyToken($token, $permission = 0):bool{
 
-    $token_result = $this->conn->select('SELECT * FROM token WHERE token = :token AND valid >= :date_today', array(
+    $token_result = $this->conn->select('SELECT * FROM token AS T
+    INNER JOIN permissions AS P
+    ON P.id_token = T.id
+    WHERE T.token = :token AND T.valid >= :date_today
+    AND P.permission = :permission', array(
       ":token" => $token,
-      ":date_today" => strtotime($this->date_today)
+      ":date_today" => strtotime($this->date_today),
+      ":permission" => $permission
     ));
+
 
     if(count($token_result) > 0){
 
@@ -40,7 +51,7 @@ class User extends Model{
 
   public function getAllUsers($token){
 
-    $result_token = $this->verifyToken($token);
+    $result_token = $this->verifyToken($token, $this->permissions[3]);
 
     if($result_token === true){
 
@@ -60,7 +71,7 @@ class User extends Model{
 
       return json_encode(
         array(
-          "message"=>"Token invalid or expired"
+          "message"=>"Token invalid or expired or permission deneid"
         )
         );
 
@@ -70,7 +81,7 @@ class User extends Model{
 
   public function getParticularUser($id, $token){
 
-    $result_token = $this->verifyToken($token);
+    $result_token = $this->verifyToken($token, $this->permissions[3]);
 
     if($result_token === true){
 
@@ -94,7 +105,7 @@ class User extends Model{
     }else{
       return json_encode(
         array(
-          "message"=>"Token invalid or expired"
+          "message"=>"Token invalid or expired or permission deneid"
         )
         );
     }
@@ -103,7 +114,7 @@ class User extends Model{
 
   public function addUser($token){
 
-    $result_token = $this->verifyToken($token);
+    $result_token = $this->verifyToken($token, $this->permissions[0]);
 
     if($result_token === true){
 
@@ -132,7 +143,7 @@ class User extends Model{
 
       return json_encode(
         array(
-          "message"=>"Token invalid or expired"
+          "message"=>"Token invalid or expired or permission deneid"
         )
         );
 
@@ -142,7 +153,7 @@ class User extends Model{
 
   public function deleteUser($token){
 
-    $result_token = $this->verifyToken($token);
+    $result_token = $this->verifyToken($token, $this->permissions[1]);
     if($result_token === true){
 
       $result = $this->conn->query("DELETE FROM users WHERE
@@ -169,7 +180,7 @@ class User extends Model{
     }else{
       return json_encode(
         array(
-          "message"=>"Token invalid or expired"
+          "message"=>"Token invalid or expired or permission deneid"
         )
         );
     }
@@ -177,7 +188,8 @@ class User extends Model{
   }
 
   public function updateUser($id, $token){
-    $result_token = $this->verifyToken($token);
+
+    $result_token = $this->verifyToken($token, $this->permissions[2]);
 
     if($result_token){
 
@@ -205,7 +217,7 @@ class User extends Model{
     }else{
       return json_encode(
         array(
-          "message"=>"Token invalid or expired"
+          "message"=>"Token invalid or expired or permission deneid"
         )
         );
     }
