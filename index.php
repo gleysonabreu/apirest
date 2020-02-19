@@ -1,10 +1,22 @@
 <?php
-
+header("Access-Control-Allow-Origin: *");
 require "vendor/autoload.php";
 
 use \GLEYSON\Model\User as USER;
 
 $route = new \Slim\Slim();
+
+// Route add particular user
+$route->post("/api/add/user/:token",
+function($token){
+
+  $user = new USER();
+  $user->setData($_POST);
+  $result = $user->addUser($token);
+  
+  echo $result;
+
+});
 
 // Route get all users
 $route->get('/api/users/all/:token', function ($token) {
@@ -24,20 +36,8 @@ $route->get('/api/users/:id/:token', function($id, $token){
 
 });
 
-// Route add particular user
-$route->post("/api/users/add/:token",
-function($token){
-
-  $user = new USER();
-  $user->setData($_POST);
-  $result = $user->addUser($token);
-  
-  echo $result;
-
-});
-
 // Route delete user;
-$route->delete("/api/users/delete/:id/:token", function($id, $token){
+$route->get("/api/users/delete/:id/:token", function($id, $token){
   $user = new USER();
   $user->setid((int)$id);
   $result = $user->deleteUser($token);
