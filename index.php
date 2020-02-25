@@ -1,4 +1,5 @@
 <?php
+sleep(2);
 header("Access-Control-Allow-Origin: *");
 require "vendor/autoload.php";
 
@@ -18,12 +19,21 @@ function($token){
 
 });
 
+// Route update user;
+$route->post("/api/update/:id/:token", function($id, $token){
+  
+  $user = new USER();
+  $user->setData($_POST);
+  $result = $user->updateUser((int)$id, $token);
+  
+  echo $result;
+});
+
 // Route get all users
 $route->get('/api/users/all/:token', function ($token) {
-
-    $user = new USER();
-    $result = $user->getAllUsers($token);
-    echo $result;
+  $user = new USER();
+  $result = $user->getAllUsers($token);
+  echo $result;
 
 });
 
@@ -41,16 +51,6 @@ $route->get("/api/users/delete/:id/:token", function($id, $token){
   $user = new USER();
   $user->setid((int)$id);
   $result = $user->deleteUser($token);
-  
-  echo $result;
-});
-
-// Route update user;
-$route->post("/api/users/update/:id/:token", function($id, $token){
-  
-  $user = new USER();
-  $user->setData($_POST);
-  $result = $user->updateUser((int)$id, $token);
   
   echo $result;
 });
