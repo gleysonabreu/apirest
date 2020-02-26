@@ -1,5 +1,5 @@
 ## APIREST
-This project created for studing API REST with SLIM Framework v2 and works.<br>
+This project created for studing API REST with SLIM Framework v3 and works.<br>
 I using Insomnia for tests on api requisition.<br>
 I using composer too.<br>
 
