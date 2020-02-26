@@ -4,7 +4,7 @@ require "vendor/autoload.php";
 
 use \GLEYSON\Model\User as USER;
 
-$route = new \Slim\Slim();
+$route = new \Slim\App();
 
 // Route add particular user
 $route->post("/api/add/user/{token}",
