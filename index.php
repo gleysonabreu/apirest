@@ -19,37 +19,37 @@ function($request, $response, $args){
 });
 
 // Route update user;
-$route->post("/api/update/:id/:token", function($id, $token){
+$route->post("/api/update/{id}/{token}", function($request, $response, $args){
   
   $user = new USER();
   $user->setData($_POST);
-  $result = $user->updateUser((int)$id, $token);
+  $result = $user->updateUser((int)$args['id'], $args['token']);
   
   echo $result;
 });
 
 // Route get all users
-$route->get('/api/users/all/:token', function ($token) {
+$route->get('/api/users/all/{token}', function ($request, $response, $args) {
   $user = new USER();
-  $result = $user->getAllUsers($token);
+  $result = $user->getAllUsers($args['token']);
   echo $result;
 
 });
 
 // Route get particular user
-$route->get('/api/users/:id/:token', function($id, $token){
+$route->get('/api/users/{id}/{token}', function($request, $response, $args){
 
   $user = new USER();
-  $result = $user->getParticularUser((int)$id, $token);
+  $result = $user->getParticularUser((int)$args['id'], $args['token']);
   echo $result;
 
 });
 
 // Route delete user;
-$route->get("/api/users/delete/:id/:token", function($id, $token){
+$route->get("/api/users/delete/{id}/{token}", function($request, $response, $args){
   $user = new USER();
-  $user->setid((int)$id);
-  $result = $user->deleteUser($token);
+  $user->setid((int)$args['id']);
+  $result = $user->deleteUser($args['token']);
   
   echo $result;
 });
