@@ -1,5 +1,4 @@
 <?php
-sleep(2);
 header("Access-Control-Allow-Origin: *");
 require "vendor/autoload.php";
 
@@ -8,12 +7,12 @@ use \GLEYSON\Model\User as USER;
 $route = new \Slim\Slim();
 
 // Route add particular user
-$route->post("/api/add/user/:token",
-function($token){
+$route->post("/api/add/user/{token}",
+function($request, $response, $args){
 
   $user = new USER();
   $user->setData($_POST);
-  $result = $user->addUser($token);
+  $result = $user->addUser($args['token']);
   
   echo $result;
 
