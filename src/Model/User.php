@@ -3,11 +3,12 @@ namespace GLEYSON\Model;
 
 use \GLEYSON\Model;
 use \GLEYSON\DB\Sql as SQL;
+use \Firebase\JWT\JWT;
 
 class User extends Model{
 
   protected $fields = [
-    "id", "name", "lastname", "company"
+    "id", "name", "lastname", "company", "email", "password"
   ];
 
   // Permissions: 1 - ADD, 2 - DELETE, 3 - UPDATE, 4 - READ
@@ -118,11 +119,13 @@ class User extends Model{
 
     if($result_token === true){
 
-      $result = $this->conn->query("INSERT INTO users (name, lastname, company)
-      VALUES(:name, :lastname, :company)", array(
+      $result = $this->conn->query("INSERT INTO users (name, lastname, company, email, password)
+      VALUES(:name, :lastname, :company, :email, :password)", array(
         ":name" => $this->getname(),
         ":lastname" => $this->getlastname(),
-        ":company" => $this->getcompany()
+        ":company" => $this->getcompany(),
+        ":email" => $this->getemail(),
+        ":password" => $this->getpassword()
       ));
 
       if($result > 0){
@@ -221,6 +224,53 @@ class User extends Model{
         )
         );
     }
+  }
+
+  public static function login($email, $password){
+    
+    $sql = new SQL();
+    $result = $sql->select("SELECT id, name, lastname, company, email FROM users WHERE email = :e AND password = :pass",
+    array(
+      ":e" => $email,
+      ":pass" => $password
+    ));
+
+    if(count($result) === 0){
+      return json_encode(array(
+        "message" => "User inválid!"
+      ));
+      exit;
+    }
+
+      $secret_key = "YOUR_SECRET_KEY";
+      $issuer_claim = "THE_ISSUER";
+      $audience_claim = "THE_AUDIENCE";
+      $issuedat_claim = 1356999524; // issued at
+      $notbefore_claim = 1357000000; //not before
+      $token = array(
+        "iss"=> $issuer_claim,
+        "aud"=> $audience_claim,
+        "iat"=> $issuedat_claim,
+        "nbf"=> $notbefore_claim,
+        "data"=> array(
+          "id"=> $result[0]["id"],
+          "lastname"=> $result[0]["lastname"],
+          "firstname"=> $result[0]["name"],
+          "email"=> $result[0]["email"]
+        )
+      );
+      $jwt = JWT::encode($token, $secret_key);
+      
+
+    return json_encode(
+      array(
+          "message"=> "Login success!",
+          "jwt"=> $jwt
+        )
+    );
+
+
+
   }
 
 }

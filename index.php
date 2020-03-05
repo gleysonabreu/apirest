@@ -6,6 +6,19 @@ use \GLEYSON\Model\User as USER;
 
 $route = new \Slim\App();
 
+// Route Auth
+$route->post("/api/auth/login", function($request, $response, $args){
+  
+  if(isset($_POST['email']) && isset($_POST['password'])){
+    $auth = USER::login($_POST['email'], $_POST['password']);
+    echo $auth;
+  }else{
+    echo json_encode(array("message" => "Auth deneid."));
+  }
+
+  
+});
+
 // Route add particular user
 $route->post("/api/add/user/{token}",
 function($request, $response, $args){
@@ -30,6 +43,7 @@ $route->post("/api/update/{id}/{token}", function($request, $response, $args){
 
 // Route get all users
 $route->get('/api/users/all/{token}', function ($request, $response, $args) {
+  
   $user = new USER();
   $result = $user->getAllUsers($args['token']);
   echo $result;
