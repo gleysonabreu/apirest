@@ -2,34 +2,45 @@
 
 namespace GLEYSON\DB;
 
-class Sql{
+class Sql
+{
 
-  /* MY SQL CONECTION
-  const HOST = "127.0.0.1:3307";
-  const USERNAME = 'root';
-  const PASSWORD = '';
-  const DB = 'db_apirest';
-  */
+  const HOST = "localhost";
+  const USERNAME = 'postgres';
+  const PASSWORD = '32841516';
+  const DB = 'api_rest';
+  const PORT = '5432';
+  const CONNECTION = 0; // 0 = pgsql, 1 = mysql
 
   private $conn;
 
-  public function __construct(){
+  public function __construct()
+  {
 
-    /*
-    MYSQL CONNECTION
-    $this->conn = new \PDO(
-      "mysql:dbname=".Sql::DB.";host=".Sql::HOST,
-      Sql::USERNAME,
-      Sql::PASSWORD
-    );*/
+    try{
 
-    $db = (parse_url(getenv('DATABASE_URL') ?: 'postgresql://postgres:32841516@localhost:5432/api_rest'));
+      switch(Sql::CONNECTION){
+        case 0:
+          $db = (parse_url(getenv('DATABASE_URL') ?: 'mysql://'.Sql::USERNAME.':'.Sql::PASSWORD.'@'.Sql::HOST.':'.Sql::PORT.'/'.Sql::DB));
+          $this->conn = new \PDO("pgsql:host=".$db['host'].";port=".$db['port'].";user=".$db['user'].";password=".$db['pass'].";dbname=".ltrim($db["path"], "/"));
+          break;
+        case 1:
+          $this->conn = new \PDO("mysql:dbname=".Sql::DB.";host=".Sql::HOST, Sql::USERNAME, Sql::PASSWORD);
+          break;
+        default:
+          break;
+      }
 
-    $this->conn = new \PDO("pgsql:" . "host=".$db['host'].";port=".$db['port'].";user=".$db['user'].";password=".$db['pass'].";dbname=".ltrim($db["path"], "/"));
+    }catch (PDOException $e){
+      return json_encode(array(
+        "message" => $e->getMessage()
+      ));
+    }
 
   }
 
-  private function setParams($statment, $parameters = array()){
+  private function setParams($statment, $parameters = array())
+  {
 
     foreach($parameters as $key => $value){
       $this->bindParam($statment, $key, $value);
@@ -37,13 +48,15 @@ class Sql{
 
   }
 
-  private function bindParam($statment, $key, $value){
+  private function bindParam($statment, $key, $value)
+  {
 
     $statment->bindParam($key, $value);
 
   }
 
-  public function query($rawQuery, $params = array()){
+  public function query($rawQuery, $params = array())
+  {
 
     $stmt = $this->conn->prepare($rawQuery);
     $this->setParams($stmt, $params);
@@ -52,7 +65,8 @@ class Sql{
 
   }
 
-  public function select($rawQuery, $params = array()):array{
+  public function select($rawQuery, $params = array()):array
+  {
 
     $stmt = $this->conn->prepare($rawQuery);
     $this->setParams($stmt, $params);

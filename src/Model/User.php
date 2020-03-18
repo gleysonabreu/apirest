@@ -11,6 +11,10 @@ class User extends Model{
     "id", "name", "lastname", "company", "email", "password"
   ];
 
+  CONST TOKEN_MESSAGE = "Token invalid, expired or permission deneid!";
+  CONST NODATA_MESSAGE = "No data found!";
+  CONST USER_MESSAGE = "User doesn't exists";
+
   // Permissions: 1 - ADD, 2 - DELETE, 3 - UPDATE, 4 - READ
   protected $permissions = [
     1, 2, 3, 4
@@ -20,12 +24,14 @@ class User extends Model{
   private $conn;
   private $token;
 
-  function __construct(){
+  function __construct()
+  {
     $this->date_today = date("d-m-Y");
     $this->conn = new SQL();
   }
 
-  private function verifyToken($token, $permission = 0):bool{
+  private function verifyToken($token, $permission = 0):bool
+  {
 
     $token_result = $this->conn->select('SELECT * FROM token AS T
     INNER JOIN permissions AS P
@@ -50,7 +56,8 @@ class User extends Model{
 
   }
 
-  public function getAllUsers($token){
+  public function getAllUsers($token)
+  {
 
     $result_token = $this->verifyToken($token, $this->permissions[3]);
 
@@ -59,28 +66,19 @@ class User extends Model{
       $result = $this->conn->select("SELECT * FROM users");
 
       if($result == null || count($result) == 0){
-        return json_encode(
-          array(
-            "message"=>"No data found"
-          )
-          );
+        return $this->toastMessage(User::NODATA_MESSAGE);
       }else{
         return json_encode($result);
       }
 
     }else{
-
-      return json_encode(
-        array(
-          "message"=>"Token invalid or expired or permission deneid"
-        )
-        );
-
+      return $this->toastMessage(User::TOKEN_MESSAGE);
     }
 
   }
 
-  public function getParticularUser($id, $token){
+  public function getParticularUser($id, $token)
+  {
 
     $result_token = $this->verifyToken($token, $this->permissions[3]);
 
@@ -96,24 +94,17 @@ class User extends Model{
         return json_encode($result[0]);
 
       }else{
-        return json_encode(
-          array(
-            "message"=>"No data found"
-          )
-          );
+        return $this->toastMessage(User::NODATA_MESSAGE);
       }
 
     }else{
-      return json_encode(
-        array(
-          "message"=>"Token invalid or expired or permission deneid"
-        )
-        );
+      return $this->toastMessage(User::TOKEN_MESSAGE);
     }
 
   }
 
-  public function addUser($token){
+  public function addUser($token)
+  {
 
     $result_token = $this->verifyToken($token, $this->permissions[0]);
 
@@ -121,112 +112,75 @@ class User extends Model{
 
       $result = $this->conn->query("INSERT INTO users (name, lastname, company, email, password)
       VALUES(:name, :lastname, :company, :email, :password)", array(
-        ":name" => $this->getname(),
-        ":lastname" => $this->getlastname(),
-        ":company" => $this->getcompany(),
-        ":email" => $this->getemail(),
-        ":password" => $this->getpassword()
+        ":name" => $this->getName(),
+        ":lastname" => $this->getLastname(),
+        ":company" => $this->getCompany(),
+        ":email" => $this->getEmail(),
+        ":password" => $this->getPassword()
       ));
 
       if($result > 0){
-        return json_encode(
-          array(
-            "message"=>"User added with success!"
-          )
-          );
+        return $this->toastMessage("User added with success!");
       }else{
-        return json_encode(
-          array(
-            "message"=>"Error registering user"
-          )
-          );
+        return $this->toastMessage("Error registering user");
       }
 
     }else{
-
-      return json_encode(
-        array(
-          "message"=>"Token invalid or expired or permission deneid"
-        )
-        );
-
+      return $this->toastMessage(User::TOKEN_MESSAGE);
     }
 
   }
 
-  public function deleteUser($token){
+  public function deleteUser($token)
+  {
 
     $result_token = $this->verifyToken($token, $this->permissions[1]);
     if($result_token === true){
 
       $result = $this->conn->query("DELETE FROM users WHERE
       id in (SELECT id FROM users WHERE id = :id)", array(
-        ":id" => $this->getid()
+        ":id" => $this->getId()
       ));
 
       if($result > 0){
-
-        return json_encode(
-          array(
-            "message"=>"User deleted"
-          )
-          );
-
+        return $this->toastMessage("User deleted");
       }else{
-        return json_encode(
-          array(
-            "message"=>"User doesn't exists"
-          )
-          );
+        return $this->toastMessage(User::USER_MESSAGE);
       }
 
     }else{
-      return json_encode(
-        array(
-          "message"=>"Token invalid or expired or permission deneid"
-        )
-        );
+      return $this->toastMessage(User::TOKEN_MESSAGE);
     }
 
   }
 
-  public function updateUser($id, $token){
+  public function updateUser($id, $token)
+  {
 
     $result_token = $this->verifyToken($token, $this->permissions[2]);
 
     if($result_token){
 
       $result = $this->conn->query("UPDATE users SET name = :name, lastname = :lname, company = :cpn WHERE id = :id", array(
-        ":name" => $this->getname(),
-        ":lname" => $this->getlastname(),
-        ":cpn" => $this->getcompany(),
+        ":name" => $this->getName(),
+        ":lname" => $this->getLastname(),
+        ":cpn" => $this->getCompany(),
         ":id" => $id
       ));
 
       if($result > 0){
-        return json_encode(
-          array(
-            "message"=>"User updated"
-          )
-          );
+        return $this->toastMessage("User updated");
       }else{
-        return json_encode(
-          array(
-            "message"=>"User doesn't exists or Error"
-          )
-          );
+        return $this->toastMessage(User::USER_MESSAGE);
       }
 
     }else{
-      return json_encode(
-        array(
-          "message"=>"Token invalid or expired or permission deneid"
-        )
-        );
+      return $this->toastMessage(User::TOKEN_MESSAGE);
     }
   }
 
-  public static function login($email, $password){
+  public static function login($email, $password)
+  {
     
     $sql = new SQL();
     $result = $sql->select("SELECT id, name, lastname, company, email FROM users WHERE email = :e AND password = :pass",
@@ -236,9 +190,7 @@ class User extends Model{
     ));
 
     if(count($result) === 0){
-      return json_encode(array(
-        "message" => "User inválid!"
-      ));
+      return $this->toastMessage("User inválid!");
       exit;
     }
 
@@ -268,9 +220,13 @@ class User extends Model{
           "jwt"=> $jwt
         )
     );
+  }
 
-
-
+  public function toastMessage($message)
+  {
+    return json_encode(array(
+      "message" => $message
+    ));
   }
 
 }

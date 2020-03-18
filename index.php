@@ -7,7 +7,8 @@ use \GLEYSON\Model\User as USER;
 $route = new \Slim\App();
 
 // Route Auth
-$route->post("/api/auth/login", function($request, $response, $args){
+$route->post("/api/auth/login", function($request, $response, $args)
+{
   
   if(isset($_POST['email']) && isset($_POST['password'])){
     $auth = USER::login($_POST['email'], $_POST['password']);
@@ -20,8 +21,8 @@ $route->post("/api/auth/login", function($request, $response, $args){
 });
 
 // Route add particular user
-$route->post("/api/add/user/{token}",
-function($request, $response, $args){
+$route->post("/api/add/user/{token}", function($request, $response, $args)
+{
 
   $user = new USER();
   $user->setData($_POST);
@@ -32,7 +33,8 @@ function($request, $response, $args){
 });
 
 // Route update user;
-$route->post("/api/update/{id}/{token}", function($request, $response, $args){
+$route->post("/api/update/{id}/{token}", function($request, $response, $args)
+{
   
   $user = new USER();
   $user->setData($_POST);
@@ -42,8 +44,8 @@ $route->post("/api/update/{id}/{token}", function($request, $response, $args){
 });
 
 // Route get all users
-$route->get('/api/users/all/{token}', function ($request, $response, $args) {
-  
+$route->get('/api/users/all/{token}', function ($request, $response, $args)
+{
   $user = new USER();
   $result = $user->getAllUsers($args['token']);
   echo $result;
@@ -51,7 +53,8 @@ $route->get('/api/users/all/{token}', function ($request, $response, $args) {
 });
 
 // Route get particular user
-$route->get('/api/users/{id}/{token}', function($request, $response, $args){
+$route->get('/api/users/{id}/{token}', function($request, $response, $args)
+{
 
   $user = new USER();
   $result = $user->getParticularUser((int)$args['id'], $args['token']);
@@ -60,9 +63,10 @@ $route->get('/api/users/{id}/{token}', function($request, $response, $args){
 });
 
 // Route delete user;
-$route->get("/api/users/delete/{id}/{token}", function($request, $response, $args){
+$route->get("/api/users/delete/{id}/{token}", function($request, $response, $args)
+{
   $user = new USER();
-  $user->setid((int)$args['id']);
+  $user->setId((int)$args['id']);
   $result = $user->deleteUser($args['token']);
   
   echo $result;
