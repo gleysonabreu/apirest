@@ -182,7 +182,7 @@ class User extends Model{
   public static function login($email, $password)
   {
     
-    $sql = new SQL();
+    $sql = new SQL();$sql = new SQL();
     $result = $sql->select("SELECT id, name, lastname, company, email FROM users WHERE email = :e AND password = :pass",
     array(
       ":e" => $email,
@@ -190,7 +190,9 @@ class User extends Model{
     ));
 
     if(count($result) === 0){
-      return $this->toastMessage("User inválid!");
+      return json_encode(array(
+        "message" => "User inválid!"
+      ));
       exit;
     }
 
